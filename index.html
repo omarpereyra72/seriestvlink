@@ -1,0 +1,1061 @@
+<title>seriesLinkTv</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4E9D8;
+    --surface:#FFFFFF;
+    --surface-2:#FBF1E2;
+    --ink:#241019;
+    --ink-soft:#6b5560;
+    --line: rgba(36,16,25,.18);
+    --accent-pink:#E31577;
+    --accent-orange:#F2660B;
+    --accent-teal:#00807A;
+    --accent-mustard:#CE8F00;
+    --accent-purple:#5B2A86;
+    --danger:#C81E3A;
+    --pop-shadow: 3px 3px 0 var(--ink);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#170B1D;
+      --surface:#241330;
+      --surface-2:#2D1A3C;
+      --ink:#F5E9D8;
+      --ink-soft:#C7B4C9;
+      --line: rgba(245,233,216,.18);
+      --accent-pink:#FF3D93;
+      --accent-orange:#FF7E33;
+      --accent-teal:#20D6CE;
+      --accent-mustard:#FFD23F;
+      --accent-purple:#A56BEB;
+      --danger:#FF6B84;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#170B1D;
+    --surface:#241330;
+    --surface-2:#2D1A3C;
+    --ink:#F5E9D8;
+    --ink-soft:#C7B4C9;
+    --line: rgba(245,233,216,.18);
+    --accent-pink:#FF3D93;
+    --accent-orange:#FF7E33;
+    --accent-teal:#20D6CE;
+    --accent-mustard:#FFD23F;
+    --accent-purple:#A56BEB;
+    --danger:#FF6B84;
+    color-scheme: dark;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Poppins',sans-serif; line-height:1.5;
+  }
+  h1,h2,h3{ font-family:'Bungee', 'Poppins', sans-serif; font-weight:400; text-wrap:balance; margin:0; }
+  a{ color:var(--accent-teal); }
+  button{ font-family:inherit; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* ---------- header ---------- */
+  .app-header{
+    position:relative; overflow:hidden;
+    padding:calc(36px + env(safe-area-inset-top,0px)) 16px 26px;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    text-align:center; isolation:isolate;
+  }
+  .sunburst{
+    position:absolute; top:-140px; left:50%; width:440px; height:440px;
+    border-radius:50%; z-index:-1; opacity:.5;
+    transform:translateX(-50%) rotate(0deg);
+    background:repeating-conic-gradient(
+      from 0deg,
+      var(--accent-pink) 0deg 12deg,
+      var(--accent-orange) 12deg 24deg,
+      var(--accent-mustard) 24deg 36deg,
+      var(--accent-teal) 36deg 48deg,
+      var(--accent-purple) 48deg 60deg
+    );
+    animation: girar 120s linear infinite;
+    -webkit-mask-image: radial-gradient(circle, black 55%, transparent 80%);
+            mask-image: radial-gradient(circle, black 55%, transparent 80%);
+  }
+  @keyframes girar{ to{ transform:translateX(-50%) rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ .sunburst{ animation:none; } }
+
+  .logo-word{
+    font-size:clamp(30px,7vw,52px); letter-spacing:.5px;
+    background:linear-gradient(90deg,var(--accent-pink),var(--accent-orange) 35%,var(--accent-mustard) 55%,var(--accent-teal) 75%,var(--accent-purple));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .tagline{ color:var(--ink-soft); font-size:14px; max-width:46ch; }
+
+  .theme-toggle{
+    position:absolute; top:calc(14px + env(safe-area-inset-top,0px)); right:14px;
+    display:flex; align-items:center; gap:6px;
+    background:var(--surface); border:2px solid var(--ink); border-radius:999px;
+    padding:7px 12px; cursor:pointer; font-size:13px; font-weight:600; color:var(--ink);
+    box-shadow:var(--pop-shadow);
+  }
+  .theme-toggle:active{ box-shadow:1px 1px 0 var(--ink); transform:translate(2px,2px); }
+
+  /* ---------- tabs ---------- */
+  .tabs{
+    display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
+    padding:0 16px 18px; position:sticky; top:0; z-index:5;
+    background:var(--bg);
+  }
+  .tab-btn{
+    border:2px solid var(--ink); background:var(--surface); color:var(--ink);
+    border-radius:999px; padding:9px 18px; font-weight:600; font-size:14px;
+    cursor:pointer; box-shadow:var(--pop-shadow);
+  }
+  .tab-btn[aria-selected="true"]{ background:var(--ink); color:var(--bg); }
+  .tab-btn:active{ box-shadow:1px 1px 0 var(--ink); transform:translate(2px,2px); }
+
+  main{ max-width:1080px; margin-inline:auto; padding:4px 16px 72px; }
+  .view{ display:flex; flex-direction:column; gap:22px; }
+
+  .panel{
+    background:var(--surface); border:2px solid var(--ink); border-radius:16px;
+    padding:18px; box-shadow:var(--pop-shadow);
+  }
+  .panel h2{ font-size:19px; margin-bottom:12px; }
+  .panel-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+
+  .hint-banner{
+    background:var(--surface-2); border:2px dashed var(--line); border-radius:12px;
+    padding:10px 14px; font-size:13px; color:var(--ink-soft); display:flex; gap:8px; align-items:baseline; justify-content:space-between; flex-wrap:wrap;
+  }
+
+  /* ---------- buttons / inputs ---------- */
+  .btn{
+    border:2px solid var(--ink); border-radius:10px; padding:9px 16px;
+    font-weight:600; font-size:14px; cursor:pointer; background:var(--surface); color:var(--ink);
+    box-shadow:var(--pop-shadow);
+  }
+  .btn:active{ box-shadow:1px 1px 0 var(--ink); transform:translate(2px,2px); }
+  .btn-primary{ background:var(--accent-pink); color:#fff; border-color:var(--accent-pink); }
+  .btn-ghost{ box-shadow:none; }
+  .btn-danger{ background:var(--danger); color:#fff; border-color:var(--danger); }
+  .btn-sm{ padding:6px 11px; font-size:12.5px; border-radius:8px; }
+  .btn-icon{ padding:6px 9px; line-height:1; }
+
+  input, select, textarea{
+    font-family:inherit; font-size:14px; padding:9px 11px; border-radius:8px;
+    border:2px solid var(--line); background:var(--surface); color:var(--ink);
+  }
+  input:focus, select:focus, textarea:focus, button:focus-visible, a:focus-visible{
+    outline:3px solid var(--accent-teal); outline-offset:1px;
+  }
+  label{ font-size:12.5px; font-weight:600; color:var(--ink-soft); display:block; margin-bottom:4px; }
+  .field{ display:flex; flex-direction:column; }
+  .field-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .field-row > .field{ flex:1; min-width:130px; }
+
+  /* ---------- grid tab ---------- */
+  .table-scroll{ overflow-x:auto; border-radius:10px; border:2px solid var(--ink); }
+  table.grid-table{ border-collapse:collapse; width:100%; min-width:640px; }
+  .grid-table th, .grid-table td{
+    border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; font-size:13px;
+  }
+  .grid-table thead th{
+    font-family:'Bungee'; font-weight:400; color:#fff; font-size:12.5px; letter-spacing:.4px;
+    position:sticky; top:0;
+  }
+  .grid-table thead th.hora-col{ background:var(--ink); }
+  .grid-table td.hora-col{ font-family:'JetBrains Mono'; font-weight:700; background:var(--surface-2); white-space:nowrap; }
+  .badge-mini{
+    display:inline-block; margin:2px 3px 0 0; padding:3px 8px; border-radius:999px;
+    font-size:11.5px; font-weight:600; color:#fff; cursor:pointer; border:none;
+  }
+
+  /* ---------- cards ---------- */
+  .cards-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); gap:16px; }
+  .card{
+    border:3px solid var(--ink); border-radius:14px; overflow:hidden;
+    background:var(--surface); display:flex; flex-direction:column;
+  }
+  .card__bar{ height:9px; }
+  .card__body{ padding:14px 15px 16px; display:flex; flex-direction:column; gap:9px; flex:1; }
+  .card__title{ font-size:17px; }
+  .card__meta{ font-size:12px; color:var(--ink-soft); }
+  .chip{
+    font-family:'JetBrains Mono'; font-size:11.5px; font-weight:700; padding:3px 9px;
+    border-radius:999px; border:2px solid var(--ink); display:inline-flex; align-items:center; gap:4px;
+  }
+  .chip.on{ background:var(--accent-teal); color:#fff; border-color:var(--accent-teal); }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .badge-horario{
+    font-family:'JetBrains Mono'; font-size:11.5px; font-weight:700; color:#fff;
+    padding:3px 9px; border-radius:6px;
+  }
+  .links-list{ display:flex; flex-direction:column; gap:3px; font-size:12.5px; }
+  .links-list a{ text-decoration:none; }
+  .links-list a:hover{ text-decoration:underline; }
+  .card-notas{ font-size:12.5px; color:var(--ink-soft); }
+  .card-actions{ margin-top:auto; display:flex; gap:8px; padding-top:6px; }
+  .empty-state{ color:var(--ink-soft); font-size:14px; padding:20px 4px; text-align:center; }
+
+  /* stars */
+  .stars{ display:inline-flex; gap:2px; font-size:18px; letter-spacing:1px; }
+  .stars button{ background:none; border:none; cursor:pointer; padding:2px; color:var(--line); }
+  .stars button.filled{ color:var(--accent-mustard); }
+  .stars.readonly button{ cursor:default; }
+
+  .segmented{ display:inline-flex; border:2px solid var(--ink); border-radius:999px; overflow:hidden; }
+  .segmented button{
+    border:none; background:var(--surface); color:var(--ink); padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .segmented button[aria-pressed="true"]{ background:var(--ink); color:var(--bg); }
+
+  .search-input{ flex:1; min-width:180px; }
+
+  /* ---------- dialog / modal ---------- */
+  dialog.modal{
+    border:3px solid var(--ink); border-radius:16px; padding:0; width:min(560px,92vw);
+    color:var(--ink); background:var(--surface); box-shadow:6px 6px 0 var(--ink);
+  }
+  dialog.modal::backdrop{ background:rgba(23,11,29,.55); }
+  .modal-head{
+    display:flex; justify-content:space-between; align-items:center; padding:16px 18px;
+    border-bottom:2px solid var(--line);
+  }
+  .modal-head h3{ font-size:18px; }
+  .modal-body{ padding:16px 18px; display:flex; flex-direction:column; gap:14px; max-height:65vh; overflow-y:auto; }
+  .modal-foot{ padding:14px 18px; border-top:2px solid var(--line); display:flex; justify-content:flex-end; gap:10px; }
+  .builder-list{ display:flex; flex-wrap:wrap; gap:6px; }
+  .builder-chip{
+    display:inline-flex; align-items:center; gap:6px; background:var(--surface-2); border:2px solid var(--line);
+    border-radius:999px; padding:4px 6px 4px 11px; font-size:12.5px;
+  }
+  .builder-chip button{ background:var(--ink); color:var(--bg); border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; font-size:11px; line-height:1; }
+
+  dialog.confirm{
+    border:3px solid var(--ink); border-radius:16px; width:min(360px,90vw);
+    background:var(--surface); color:var(--ink); box-shadow:6px 6px 0 var(--ink); padding:20px;
+  }
+  dialog.confirm::backdrop{ background:rgba(23,11,29,.55); }
+  dialog.confirm p{ margin:0 0 16px; font-size:14px; }
+  dialog.confirm .modal-foot{ padding:0; border:none; }
+
+  /* toast */
+  #toast-wrap{ position:fixed; bottom:calc(16px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); z-index:50; display:flex; flex-direction:column; gap:8px; align-items:center; }
+  .toast{
+    background:var(--ink); color:var(--bg); padding:10px 18px; border-radius:999px; font-size:13.5px; font-weight:600;
+    box-shadow:0 4px 14px rgba(0,0,0,.25);
+  }
+
+  @media (max-width:560px){
+    .card-actions{ flex-wrap:wrap; }
+    .modal-foot{ flex-wrap:wrap; }
+  }
+</style>
+
+<div id="toast-wrap" aria-live="polite"></div>
+
+<header class="app-header">
+  <div class="sunburst" aria-hidden="true"></div>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Cambiar tema">
+    <span id="themeIcon">🌓</span><span id="themeLabel">Auto</span>
+  </button>
+  <h1 class="logo-word">seriesLinkTv</h1>
+  <p class="tagline">Tu grilla personal de series y películas clásicas — agendá horarios, seguí temporadas y guardá los links que importan.</p>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Secciones">
+  <button class="tab-btn" role="tab" id="tab-btn-grilla" aria-selected="true" aria-controls="view-grilla" type="button">📺 Grilla</button>
+  <button class="tab-btn" role="tab" id="tab-btn-series" aria-selected="false" aria-controls="view-series" type="button">🎞️ Series</button>
+  <button class="tab-btn" role="tab" id="tab-btn-peliculas" aria-selected="false" aria-controls="view-peliculas" type="button">🎬 Películas</button>
+</nav>
+
+<main>
+  <!-- ===================== GRILLA ===================== -->
+  <section class="view" id="view-grilla" role="tabpanel" aria-labelledby="tab-btn-grilla">
+    <div class="hint-banner" id="hintBanner">
+      <span>🕹️ Datos de ejemplo cargados — editalos, borralos o agregá los tuyos cuando quieras.</span>
+      <button class="btn btn-sm btn-ghost" id="dismissHint" type="button">Ocultar</button>
+    </div>
+
+    <div class="panel">
+      <h2>Grilla semanal</h2>
+      <div class="table-scroll">
+        <table class="grid-table" id="gridTable"></table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Exportar / importar</h2>
+      <div class="panel-row" style="margin-bottom:14px;">
+        <div class="field">
+          <label for="excelMes">Mes (para la grilla mensual)</label>
+          <select id="excelMes"></select>
+        </div>
+        <div class="field">
+          <label for="excelAnio">Año</label>
+          <input id="excelAnio" type="number" min="1950" max="2100" style="width:100px;">
+        </div>
+        <button class="btn btn-primary" id="btnExcel" type="button" style="align-self:flex-end;">⬇️ Descargar Excel</button>
+      </div>
+      <div class="panel-row">
+        <button class="btn" id="btnExportJson" type="button">⬇️ Exportar datos (JSON)</button>
+        <button class="btn" id="btnImportJson" type="button">⬆️ Importar datos (JSON)</button>
+        <input type="file" id="fileImportJson" accept="application/json" hidden>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SERIES ===================== -->
+  <section class="view" id="view-series" role="tabpanel" aria-labelledby="tab-btn-series" hidden>
+    <div class="panel-row">
+      <input class="search-input" id="buscarSeries" type="search" placeholder="Buscar serie…">
+      <button class="btn btn-primary" id="btnNuevaSerie" type="button">+ Nueva serie</button>
+    </div>
+    <div class="cards-grid" id="seriesGrid"></div>
+  </section>
+
+  <!-- ===================== PELÍCULAS ===================== -->
+  <section class="view" id="view-peliculas" role="tabpanel" aria-labelledby="tab-btn-peliculas" hidden>
+    <div class="panel-row">
+      <input class="search-input" id="buscarPelis" type="search" placeholder="Buscar película…">
+      <div class="segmented" id="filtroEstado">
+        <button type="button" data-val="todas" aria-pressed="true">Todas</button>
+        <button type="button" data-val="vista" aria-pressed="false">Vistas</button>
+        <button type="button" data-val="pendiente" aria-pressed="false">Pendientes</button>
+      </div>
+      <button class="btn btn-primary" id="btnNuevaPeli" type="button">+ Nueva película</button>
+    </div>
+    <div class="cards-grid" id="peliculasGrid"></div>
+  </section>
+</main>
+
+<!-- ===================== MODAL SERIE ===================== -->
+<dialog class="modal" id="dlgSerie">
+  <form method="dialog" id="formSerie">
+    <div class="modal-head">
+      <h3 id="dlgSerieTitulo">Nueva serie</h3>
+      <button type="button" class="btn btn-icon btn-ghost" data-close-dialog="dlgSerie" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="serieTituloInput">Título</label>
+        <input id="serieTituloInput" type="text" required placeholder="Ej: Star Trek: La serie original">
+      </div>
+
+      <div class="field">
+        <label>Temporadas</label>
+        <div class="field-row">
+          <input id="serieTempNum" type="number" min="1" placeholder="N° temporada" style="max-width:130px;">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:500;color:var(--ink);"><input id="serieTempVista" type="checkbox" style="width:auto;"> Ya la vi</label>
+          <button class="btn btn-sm" type="button" id="btnAddTemp">+ Agregar</button>
+        </div>
+        <div class="builder-list" id="listaTemporadas" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="field">
+        <label>Horario(s) de emisión</label>
+        <div class="field-row">
+          <select id="serieDia"></select>
+          <input id="serieHora" type="time" style="max-width:120px;">
+          <button class="btn btn-sm" type="button" id="btnAddHorario">+ Agregar</button>
+        </div>
+        <div class="builder-list" id="listaHorarios" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="field">
+        <label>Links relacionados</label>
+        <div class="field-row">
+          <input id="serieLinkEtiqueta" type="text" placeholder="Etiqueta (IMDb, fan site…)">
+          <input id="serieLinkUrl" type="url" placeholder="https://…">
+          <button class="btn btn-sm" type="button" id="btnAddLink">+ Agregar</button>
+        </div>
+        <div class="builder-list" id="listaLinks" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="field">
+        <label for="serieNotas">Notas (opcional)</label>
+        <textarea id="serieNotas" rows="2" placeholder="Cualquier detalle que quieras recordar…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn" data-close-dialog="dlgSerie">Cancelar</button>
+      <button type="submit" class="btn btn-primary">Guardar serie</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ===================== MODAL PELÍCULA ===================== -->
+<dialog class="modal" id="dlgPeli">
+  <form method="dialog" id="formPeli">
+    <div class="modal-head">
+      <h3 id="dlgPeliTitulo">Nueva película</h3>
+      <button type="button" class="btn btn-icon btn-ghost" data-close-dialog="dlgPeli" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field" style="flex:2;">
+          <label for="peliTituloInput">Título</label>
+          <input id="peliTituloInput" type="text" required placeholder="Ej: 2001: Odisea del espacio">
+        </div>
+        <div class="field">
+          <label for="peliAnioInput">Año (opcional)</label>
+          <input id="peliAnioInput" type="number" min="1900" max="2100" placeholder="1968">
+        </div>
+      </div>
+      <div class="field">
+        <label for="peliEstadoInput">Estado</label>
+        <select id="peliEstadoInput">
+          <option value="pendiente">Para ver</option>
+          <option value="vista">Ya la vi</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Puntuación</label>
+        <div class="stars" id="peliStarsInput">
+          <button type="button" data-v="1">★</button><button type="button" data-v="2">★</button><button type="button" data-v="3">★</button><button type="button" data-v="4">★</button><button type="button" data-v="5">★</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="peliDescInput">Descripción</label>
+        <textarea id="peliDescInput" rows="3" placeholder="De qué trata…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn" data-close-dialog="dlgPeli">Cancelar</button>
+      <button type="submit" class="btn btn-primary">Guardar película</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ===================== CONFIRM ===================== -->
+<dialog class="confirm" id="dlgConfirm">
+  <p id="confirmMsg">¿Confirmás esta acción?</p>
+  <div class="modal-foot">
+    <button class="btn" id="confirmNo" type="button">Cancelar</button>
+    <button class="btn btn-danger" id="confirmYes" type="button">Confirmar</button>
+  </div>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  var DIAS_ABR = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  var MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var ACCENTS = ['pink','orange','teal','mustard','purple'];
+  var ACCENT_VAR = { pink:'--accent-pink', orange:'--accent-orange', teal:'--accent-teal', mustard:'--accent-mustard', purple:'--accent-purple' };
+  var DAY_ACCENT = { 'Lunes':'pink','Martes':'orange','Miércoles':'teal','Jueves':'mustard','Viernes':'purple','Sábado':'pink','Domingo':'orange' };
+  var STORAGE_KEY = 'seriesLinkTv:data:v1';
+
+  function accentFor(i){ return ACCENTS[i % ACCENTS.length]; }
+  function cssVar(accent){ return 'var(' + ACCENT_VAR[accent] + ')'; }
+  function uid(){ return 'id' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  function defaultData(){
+    return {
+      theme: null,
+      hintDismissed: false,
+      series: [
+        {
+          id: uid(), titulo: 'Star Trek: La serie original',
+          temporadas: [ {numero:1, vista:true}, {numero:2, vista:true}, {numero:3, vista:false} ],
+          horarios: [ {dia:'Martes', hora:'21:00'} ],
+          links: [
+            {etiqueta:'IMDb', url:'https://www.imdb.com/title/tt0060028/'},
+            {etiqueta:'Wikipedia', url:'https://es.wikipedia.org/wiki/Star_Trek:_La_serie_original'}
+          ],
+          notas: 'Ciencia ficción clásica, 1966-1969.'
+        },
+        {
+          id: uid(), titulo: 'Los Ángeles de Charlie',
+          temporadas: [ {numero:1, vista:true}, {numero:2, vista:false} ],
+          horarios: [ {dia:'Jueves', hora:'22:00'}, {dia:'Domingo', hora:'18:00'} ],
+          links: [ {etiqueta:'IMDb', url:'https://www.imdb.com/title/tt0072562/'} ],
+          notas: ''
+        },
+        {
+          id: uid(), titulo: 'Dallas',
+          temporadas: [ {numero:1, vista:false} ],
+          horarios: [ {dia:'Viernes', hora:'20:30'} ],
+          links: [],
+          notas: 'Serie dramática de los años 80.'
+        }
+      ],
+      peliculas: [
+        { id: uid(), titulo:'2001: Odisea del espacio', anio:1968, estado:'vista', puntuacion:5, descripcion:'Ciencia ficción de Stanley Kubrick sobre evolución, inteligencia artificial y el monolito negro.' },
+        { id: uid(), titulo:'Tiburón', anio:1975, estado:'pendiente', puntuacion:0, descripcion:'Un gran tiburón blanco acecha las costas de Amity Island. Clásico de suspenso de Spielberg.' },
+        { id: uid(), titulo:'Blade Runner', anio:1982, estado:'vista', puntuacion:4, descripcion:'Neo-noir de ciencia ficción dirigido por Ridley Scott sobre replicantes y qué significa ser humano.' }
+      ]
+    };
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(parsed && Array.isArray(parsed.series) && Array.isArray(parsed.peliculas)) return parsed;
+      }
+    }catch(e){ /* localStorage no disponible: seguimos con datos de ejemplo en memoria */ }
+    return defaultData();
+  }
+
+  var state = loadState();
+
+  function persist(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e){ showToast('No se pudo guardar en este navegador.'); }
+  }
+
+  // ---------------- toast ----------------
+  function showToast(msg){
+    var wrap = document.getElementById('toast-wrap');
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    wrap.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 3200);
+  }
+
+  // ---------------- theme ----------------
+  var themeToggle = document.getElementById('themeToggle');
+  var themeIcon = document.getElementById('themeIcon');
+  var themeLabel = document.getElementById('themeLabel');
+  function applyTheme(){
+    if(state.theme === 'light'){ document.documentElement.setAttribute('data-theme','light'); themeIcon.textContent='☀️'; themeLabel.textContent='Claro'; }
+    else if(state.theme === 'dark'){ document.documentElement.setAttribute('data-theme','dark'); themeIcon.textContent='🌙'; themeLabel.textContent='Oscuro'; }
+    else { document.documentElement.removeAttribute('data-theme'); themeIcon.textContent='🌓'; themeLabel.textContent='Auto'; }
+  }
+  themeToggle.addEventListener('click', function(){
+    state.theme = state.theme === null ? 'dark' : (state.theme === 'dark' ? 'light' : null);
+    applyTheme(); persist();
+  });
+  applyTheme();
+
+  // ---------------- hint banner ----------------
+  var hintBanner = document.getElementById('hintBanner');
+  if(state.hintDismissed) hintBanner.hidden = true;
+  document.getElementById('dismissHint').addEventListener('click', function(){
+    state.hintDismissed = true; persist(); hintBanner.hidden = true;
+  });
+
+  // ---------------- tabs ----------------
+  var tabs = [
+    { btn:'tab-btn-grilla', view:'view-grilla' },
+    { btn:'tab-btn-series', view:'view-series' },
+    { btn:'tab-btn-peliculas', view:'view-peliculas' }
+  ];
+  function selectTab(viewId){
+    tabs.forEach(function(t){
+      var isSel = t.view === viewId;
+      document.getElementById(t.btn).setAttribute('aria-selected', isSel ? 'true':'false');
+      document.getElementById(t.view).hidden = !isSel;
+    });
+  }
+  tabs.forEach(function(t){
+    document.getElementById(t.btn).addEventListener('click', function(){ selectTab(t.view); });
+  });
+
+  // ================= GRILLA =================
+  function renderGrid(){
+    var times = Array.from(new Set(
+      state.series.flatMap(function(s){ return s.horarios.map(function(h){ return h.hora; }); })
+    )).sort();
+    if(times.length === 0) times = ['20:00','21:00','22:00'];
+
+    var thead = '<thead><tr><th class="hora-col">Hora</th>' +
+      DIAS_ABR.map(function(d,i){
+        return '<th style="background:' + cssVar(DAY_ACCENT[DIAS[i]]) + ';">' + d + '</th>';
+      }).join('') + '</tr></thead>';
+
+    var tbody = '<tbody>' + times.map(function(t){
+      var cells = DIAS.map(function(d){
+        var found = state.series.filter(function(s){
+          return s.horarios.some(function(h){ return h.dia === d && h.hora === t; });
+        });
+        var badges = found.map(function(s,i){
+          var idx = state.series.indexOf(s);
+          return '<button class="badge-mini" style="background:' + cssVar(accentFor(idx)) + ';" data-goto-serie="' + s.id + '">' + escapeHtml(s.titulo) + '</button>';
+        }).join('');
+        return '<td>' + badges + '</td>';
+      }).join('');
+      return '<tr><td class="hora-col">' + t + '</td>' + cells + '</tr>';
+    }).join('') + '</tbody>';
+
+    document.getElementById('gridTable').innerHTML = thead + tbody;
+
+    document.querySelectorAll('[data-goto-serie]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        selectTab('view-series');
+        document.getElementById('tab-btn-series').setAttribute('aria-selected','true');
+        document.getElementById('tab-btn-grilla').setAttribute('aria-selected','false');
+        var el = document.querySelector('[data-serie-card="' + btn.getAttribute('data-goto-serie') + '"]');
+        if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.style.outline = '3px solid var(--accent-teal)'; setTimeout(function(){ el.style.outline=''; }, 1600); }
+      });
+    });
+  }
+
+  // ================= SERIES =================
+  var seriesGrid = document.getElementById('seriesGrid');
+  var buscarSeries = document.getElementById('buscarSeries');
+
+  function renderSeries(){
+    var q = (buscarSeries.value || '').toLowerCase().trim();
+    var list = state.series.filter(function(s){ return s.titulo.toLowerCase().indexOf(q) !== -1; });
+
+    if(list.length === 0){
+      seriesGrid.innerHTML = '<p class="empty-state">Todavía no agregaste ninguna serie. Tocá "+ Nueva serie" para empezar.</p>';
+      return;
+    }
+
+    seriesGrid.innerHTML = list.map(function(s){
+      var realIdx = state.series.indexOf(s);
+      var accent = cssVar(accentFor(realIdx));
+      var temporadas = s.temporadas.map(function(t){
+        return '<span class="chip' + (t.vista ? ' on':'') + '">T' + t.numero + (t.vista ? ' ✓':'') + '</span>';
+      }).join('');
+      var horarios = s.horarios.map(function(h){
+        return '<span class="badge-horario" style="background:' + cssVar(DAY_ACCENT[h.dia]) + ';">' + DIAS_ABR[DIAS.indexOf(h.dia)] + ' · ' + h.hora + '</span>';
+      }).join(' ');
+      var links = s.links.map(function(l){
+        return '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener noreferrer">🔗 ' + escapeHtml(l.etiqueta || l.url) + '</a>';
+      }).join('');
+
+      return (
+        '<div class="card" data-serie-card="' + s.id + '">' +
+          '<div class="card__bar" style="background:' + accent + ';"></div>' +
+          '<div class="card__body">' +
+            '<h3 class="card__title">' + escapeHtml(s.titulo) + '</h3>' +
+            (temporadas ? '<div class="chip-row">' + temporadas + '</div>' : '') +
+            (horarios ? '<div class="chip-row">' + horarios + '</div>' : '<p class="card__meta">Sin horario asignado</p>') +
+            (links ? '<div class="links-list">' + links + '</div>' : '') +
+            (s.notas ? '<p class="card-notas">' + escapeHtml(s.notas) + '</p>' : '') +
+            '<div class="card-actions">' +
+              '<button class="btn btn-sm" data-edit-serie="' + s.id + '" type="button">Editar</button>' +
+              '<button class="btn btn-sm btn-danger" data-del-serie="' + s.id + '" type="button">Borrar</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    seriesGrid.querySelectorAll('[data-edit-serie]').forEach(function(btn){
+      btn.addEventListener('click', function(){ openSerieDialog(btn.getAttribute('data-edit-serie')); });
+    });
+    seriesGrid.querySelectorAll('[data-del-serie]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.getAttribute('data-del-serie');
+        var s = state.series.find(function(x){ return x.id === id; });
+        confirmAction('¿Borrar "' + s.titulo + '" y todos sus datos?', function(){
+          state.series = state.series.filter(function(x){ return x.id !== id; });
+          persist(); renderSeries(); renderGrid();
+          showToast('Serie borrada.');
+        });
+      });
+    });
+  }
+  buscarSeries.addEventListener('input', renderSeries);
+
+  // ---- serie dialog ----
+  var dlgSerie = document.getElementById('dlgSerie');
+  var serieDia = document.getElementById('serieDia');
+  DIAS.forEach(function(d){ var o = document.createElement('option'); o.value = d; o.textContent = d; serieDia.appendChild(o); });
+
+  var serieDraft = null;
+  var serieEditId = null;
+
+  function renderTemporadasList(){
+    var list = document.getElementById('listaTemporadas');
+    list.innerHTML = serieDraft.temporadas.map(function(t,i){
+      return '<span class="builder-chip">T' + t.numero + (t.vista ? ' (vista)':'') + '<button type="button" data-rm-temp="' + i + '">✕</button></span>';
+    }).join('') || '<span style="font-size:12px;color:var(--ink-soft);">Ninguna todavía</span>';
+    list.querySelectorAll('[data-rm-temp]').forEach(function(b){
+      b.addEventListener('click', function(){ serieDraft.temporadas.splice(+b.getAttribute('data-rm-temp'),1); renderTemporadasList(); });
+    });
+  }
+  function renderHorariosList(){
+    var list = document.getElementById('listaHorarios');
+    list.innerHTML = serieDraft.horarios.map(function(h,i){
+      return '<span class="builder-chip">' + h.dia + ' ' + h.hora + '<button type="button" data-rm-hor="' + i + '">✕</button></span>';
+    }).join('') || '<span style="font-size:12px;color:var(--ink-soft);">Ninguno todavía</span>';
+    list.querySelectorAll('[data-rm-hor]').forEach(function(b){
+      b.addEventListener('click', function(){ serieDraft.horarios.splice(+b.getAttribute('data-rm-hor'),1); renderHorariosList(); });
+    });
+  }
+  function renderLinksList(){
+    var list = document.getElementById('listaLinks');
+    list.innerHTML = serieDraft.links.map(function(l,i){
+      return '<span class="builder-chip">' + escapeHtml(l.etiqueta || l.url) + '<button type="button" data-rm-link="' + i + '">✕</button></span>';
+    }).join('') || '<span style="font-size:12px;color:var(--ink-soft);">Ninguno todavía</span>';
+    list.querySelectorAll('[data-rm-link]').forEach(function(b){
+      b.addEventListener('click', function(){ serieDraft.links.splice(+b.getAttribute('data-rm-link'),1); renderLinksList(); });
+    });
+  }
+
+  function openSerieDialog(id){
+    serieEditId = id || null;
+    var existing = id ? state.series.find(function(s){ return s.id === id; }) : null;
+    serieDraft = existing ? JSON.parse(JSON.stringify(existing)) : { titulo:'', temporadas:[], horarios:[], links:[], notas:'' };
+
+    document.getElementById('dlgSerieTitulo').textContent = existing ? 'Editar serie' : 'Nueva serie';
+    document.getElementById('serieTituloInput').value = serieDraft.titulo;
+    document.getElementById('serieNotas').value = serieDraft.notas || '';
+    document.getElementById('serieTempNum').value = '';
+    document.getElementById('serieTempVista').checked = false;
+    document.getElementById('serieHora').value = '';
+    document.getElementById('serieLinkEtiqueta').value = '';
+    document.getElementById('serieLinkUrl').value = '';
+    renderTemporadasList(); renderHorariosList(); renderLinksList();
+    dlgSerie.showModal();
+  }
+
+  document.getElementById('btnNuevaSerie').addEventListener('click', function(){ openSerieDialog(null); });
+
+  document.getElementById('btnAddTemp').addEventListener('click', function(){
+    var n = +document.getElementById('serieTempNum').value;
+    if(!n) return;
+    serieDraft.temporadas.push({ numero:n, vista: document.getElementById('serieTempVista').checked });
+    serieDraft.temporadas.sort(function(a,b){ return a.numero-b.numero; });
+    document.getElementById('serieTempNum').value=''; document.getElementById('serieTempVista').checked=false;
+    renderTemporadasList();
+  });
+  document.getElementById('btnAddHorario').addEventListener('click', function(){
+    var hora = document.getElementById('serieHora').value;
+    if(!hora) return;
+    serieDraft.horarios.push({ dia: serieDia.value, hora: hora });
+    document.getElementById('serieHora').value='';
+    renderHorariosList();
+  });
+  document.getElementById('btnAddLink').addEventListener('click', function(){
+    var url = document.getElementById('serieLinkUrl').value.trim();
+    if(!url) return;
+    var etiqueta = document.getElementById('serieLinkEtiqueta').value.trim();
+    serieDraft.links.push({ etiqueta: etiqueta || url, url: url });
+    document.getElementById('serieLinkEtiqueta').value=''; document.getElementById('serieLinkUrl').value='';
+    renderLinksList();
+  });
+
+  document.getElementById('formSerie').addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var titulo = document.getElementById('serieTituloInput').value.trim();
+    if(!titulo) return;
+    serieDraft.titulo = titulo;
+    serieDraft.notas = document.getElementById('serieNotas').value.trim();
+    if(serieEditId){
+      var idx = state.series.findIndex(function(s){ return s.id === serieEditId; });
+      serieDraft.id = serieEditId;
+      state.series[idx] = serieDraft;
+    } else {
+      serieDraft.id = uid();
+      state.series.push(serieDraft);
+    }
+    persist(); renderSeries(); renderGrid(); refreshExcelYear();
+    dlgSerie.close();
+    showToast('Serie guardada.');
+  });
+
+  // ================= PELÍCULAS =================
+  var peliculasGrid = document.getElementById('peliculasGrid');
+  var buscarPelis = document.getElementById('buscarPelis');
+  var filtroEstado = 'todas';
+
+  function starsHtml(puntuacion, interactive){
+    var out = '';
+    for(var i=1;i<=5;i++){
+      out += '<span style="color:' + (i<=puntuacion ? 'var(--accent-mustard)' : 'var(--line)') + ';">★</span>';
+    }
+    return out;
+  }
+
+  function renderPeliculas(){
+    var q = (buscarPelis.value || '').toLowerCase().trim();
+    var list = state.peliculas.filter(function(p){
+      var matchQ = p.titulo.toLowerCase().indexOf(q) !== -1;
+      var matchEstado = filtroEstado === 'todas' || p.estado === filtroEstado;
+      return matchQ && matchEstado;
+    });
+
+    if(list.length === 0){
+      peliculasGrid.innerHTML = '<p class="empty-state">No hay películas para mostrar. Probá otro filtro o agregá una nueva.</p>';
+      return;
+    }
+
+    peliculasGrid.innerHTML = list.map(function(p){
+      var realIdx = state.peliculas.indexOf(p);
+      var accent = cssVar(accentFor(realIdx));
+      return (
+        '<div class="card">' +
+          '<div class="card__bar" style="background:' + accent + ';"></div>' +
+          '<div class="card__body">' +
+            '<h3 class="card__title">' + escapeHtml(p.titulo) + (p.anio ? ' <span class="mono card__meta">(' + p.anio + ')</span>' : '') + '</h3>' +
+            '<div class="chip-row">' +
+              '<span class="chip' + (p.estado==='vista' ? ' on':'') + '">' + (p.estado === 'vista' ? '✓ Vista' : '⏳ Para ver') + '</span>' +
+            '</div>' +
+            '<div class="stars readonly" aria-hidden="true">' + starsHtml(p.puntuacion) + '</div>' +
+            (p.descripcion ? '<p class="card-notas">' + escapeHtml(p.descripcion) + '</p>' : '') +
+            '<div class="card-actions">' +
+              '<button class="btn btn-sm" data-toggle-vista="' + p.id + '" type="button">' + (p.estado==='vista' ? 'Marcar pendiente':'Marcar vista') + '</button>' +
+              '<button class="btn btn-sm" data-edit-peli="' + p.id + '" type="button">Editar</button>' +
+              '<button class="btn btn-sm btn-danger" data-del-peli="' + p.id + '" type="button">Borrar</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    peliculasGrid.querySelectorAll('[data-toggle-vista]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var p = state.peliculas.find(function(x){ return x.id === btn.getAttribute('data-toggle-vista'); });
+        p.estado = p.estado === 'vista' ? 'pendiente' : 'vista';
+        persist(); renderPeliculas();
+      });
+    });
+    peliculasGrid.querySelectorAll('[data-edit-peli]').forEach(function(btn){
+      btn.addEventListener('click', function(){ openPeliDialog(btn.getAttribute('data-edit-peli')); });
+    });
+    peliculasGrid.querySelectorAll('[data-del-peli]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.getAttribute('data-del-peli');
+        var p = state.peliculas.find(function(x){ return x.id === id; });
+        confirmAction('¿Borrar "' + p.titulo + '"?', function(){
+          state.peliculas = state.peliculas.filter(function(x){ return x.id !== id; });
+          persist(); renderPeliculas();
+          showToast('Película borrada.');
+        });
+      });
+    });
+  }
+  buscarPelis.addEventListener('input', renderPeliculas);
+  document.getElementById('filtroEstado').addEventListener('click', function(ev){
+    var btn = ev.target.closest('button[data-val]');
+    if(!btn) return;
+    filtroEstado = btn.getAttribute('data-val');
+    this.querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-pressed', b===btn ? 'true':'false'); });
+    renderPeliculas();
+  });
+
+  // ---- pelicula dialog ----
+  var dlgPeli = document.getElementById('dlgPeli');
+  var peliEditId = null;
+  var peliPuntuacion = 0;
+  var starsInput = document.getElementById('peliStarsInput');
+
+  function renderStarsInput(){
+    starsInput.querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('filled', +b.getAttribute('data-v') <= peliPuntuacion);
+    });
+  }
+  starsInput.addEventListener('click', function(ev){
+    var btn = ev.target.closest('button[data-v]');
+    if(!btn) return;
+    var v = +btn.getAttribute('data-v');
+    peliPuntuacion = (peliPuntuacion === v) ? v-1 : v;
+    renderStarsInput();
+  });
+
+  function openPeliDialog(id){
+    peliEditId = id || null;
+    var existing = id ? state.peliculas.find(function(p){ return p.id === id; }) : null;
+    document.getElementById('dlgPeliTitulo').textContent = existing ? 'Editar película' : 'Nueva película';
+    document.getElementById('peliTituloInput').value = existing ? existing.titulo : '';
+    document.getElementById('peliAnioInput').value = existing && existing.anio ? existing.anio : '';
+    document.getElementById('peliEstadoInput').value = existing ? existing.estado : 'pendiente';
+    document.getElementById('peliDescInput').value = existing ? (existing.descripcion || '') : '';
+    peliPuntuacion = existing ? (existing.puntuacion || 0) : 0;
+    renderStarsInput();
+    dlgPeli.showModal();
+  }
+  document.getElementById('btnNuevaPeli').addEventListener('click', function(){ openPeliDialog(null); });
+
+  document.getElementById('formPeli').addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var titulo = document.getElementById('peliTituloInput').value.trim();
+    if(!titulo) return;
+    var data = {
+      titulo: titulo,
+      anio: document.getElementById('peliAnioInput').value ? +document.getElementById('peliAnioInput').value : null,
+      estado: document.getElementById('peliEstadoInput').value,
+      puntuacion: peliPuntuacion,
+      descripcion: document.getElementById('peliDescInput').value.trim()
+    };
+    if(peliEditId){
+      var idx = state.peliculas.findIndex(function(p){ return p.id === peliEditId; });
+      data.id = peliEditId;
+      state.peliculas[idx] = data;
+    } else {
+      data.id = uid();
+      state.peliculas.push(data);
+    }
+    persist(); renderPeliculas();
+    dlgPeli.close();
+    showToast('Película guardada.');
+  });
+
+  // ---- cierre genérico de diálogos ----
+  document.querySelectorAll('[data-close-dialog]').forEach(function(btn){
+    btn.addEventListener('click', function(){ document.getElementById(btn.getAttribute('data-close-dialog')).close(); });
+  });
+
+  // ---- confirm dialog reutilizable ----
+  var dlgConfirm = document.getElementById('dlgConfirm');
+  var confirmCallback = null;
+  document.getElementById('confirmYes').addEventListener('click', function(){
+    dlgConfirm.close();
+    if(confirmCallback) confirmCallback();
+    confirmCallback = null;
+  });
+  document.getElementById('confirmNo').addEventListener('click', function(){ dlgConfirm.close(); confirmCallback = null; });
+  function confirmAction(msg, cb){
+    document.getElementById('confirmMsg').textContent = msg;
+    confirmCallback = cb;
+    dlgConfirm.showModal();
+  }
+
+  // ================= EXPORT / IMPORT =================
+  var excelMes = document.getElementById('excelMes');
+  MESES.forEach(function(m,i){ var o=document.createElement('option'); o.value=i; o.textContent=m; excelMes.appendChild(o); });
+  var excelAnio = document.getElementById('excelAnio');
+  function refreshExcelYear(){
+    var now = new Date();
+    if(!excelAnio.value) excelAnio.value = now.getFullYear();
+    excelMes.value = now.getMonth();
+  }
+  refreshExcelYear();
+
+  var downloadsCap = null;
+  if(window.claude && typeof window.claude.use === 'function'){
+    window.claude.use('downloads').then(function(cap){
+      downloadsCap = cap;
+      if(!cap){
+        document.getElementById('btnExcel').hidden = true;
+        document.getElementById('btnExportJson').hidden = true;
+        showToast('La descarga de archivos no está disponible en esta vista.');
+      }
+    }).catch(function(){ downloadsCap = null; });
+  }
+
+  function datesInMonth(year, monthIdx){
+    var out = [];
+    var d = new Date(year, monthIdx, 1);
+    while(d.getMonth() === monthIdx){ out.push(new Date(d)); d.setDate(d.getDate()+1); }
+    return out;
+  }
+  function diaSemanaDe(date){
+    // getDay(): 0=Domingo..6=Sábado -> convertimos a Lunes-first
+    return DIAS[(date.getDay() + 6) % 7];
+  }
+  function fmtFecha(date){
+    var dd = String(date.getDate()).padStart(2,'0');
+    var mm = String(date.getMonth()+1).padStart(2,'0');
+    return dd + '/' + mm + '/' + date.getFullYear();
+  }
+
+  function buildWorkbook(monthIdx, year){
+    var wb = XLSX.utils.book_new();
+
+    var times = Array.from(new Set(state.series.flatMap(function(s){ return s.horarios.map(function(h){ return h.hora; }); }))).sort();
+    var headerRow = ['Hora'].concat(DIAS);
+    var rows = times.map(function(t){
+      var row = [t];
+      DIAS.forEach(function(d){
+        var titulos = state.series.filter(function(s){
+          return s.horarios.some(function(h){ return h.dia===d && h.hora===t; });
+        }).map(function(s){ return s.titulo; });
+        row.push(titulos.join(', '));
+      });
+      return row;
+    });
+    var ws1 = XLSX.utils.aoa_to_sheet([headerRow].concat(rows));
+    ws1['!cols'] = [{wch:8}].concat(DIAS.map(function(){ return {wch:22}; }));
+    XLSX.utils.book_append_sheet(wb, ws1, 'Grilla semanal');
+
+    var monthRows = [];
+    datesInMonth(year, monthIdx).forEach(function(date){
+      var dia = diaSemanaDe(date);
+      state.series.forEach(function(s){
+        s.horarios.filter(function(h){ return h.dia === dia; }).forEach(function(h){
+          monthRows.push([fmtFecha(date), dia, h.hora, s.titulo]);
+        });
+      });
+    });
+    monthRows.sort(function(a,b){
+      if(a[0] !== b[0]) return a[0] < b[0] ? -1 : 1;
+      return a[2] < b[2] ? -1 : (a[2] > b[2] ? 1 : 0);
+    });
+    var ws2 = XLSX.utils.aoa_to_sheet([['Fecha','Día','Hora','Serie']].concat(monthRows));
+    ws2['!cols'] = [{wch:12},{wch:12},{wch:8},{wch:28}];
+    var nombreHoja = ('Grilla ' + MESES[monthIdx] + ' ' + year).slice(0,31);
+    XLSX.utils.book_append_sheet(wb, ws2, nombreHoja);
+
+    return wb;
+  }
+
+  document.getElementById('btnExcel').addEventListener('click', function(){
+    if(!downloadsCap){ showToast('La descarga no está disponible en esta vista.'); return; }
+    var monthIdx = +excelMes.value;
+    var year = +excelAnio.value || new Date().getFullYear();
+    var wb = buildWorkbook(monthIdx, year);
+    var buf = XLSX.write(wb, { bookType:'xlsx', type:'array' });
+    var blob = new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    downloadsCap.save({ filename: 'seriesLinkTv_grilla_' + MESES[monthIdx] + '_' + year + '.xlsx', data: blob })
+      .then(function(){ showToast('Excel descargado.'); })
+      .catch(function(err){
+        if(err && err.code === 'declined') return;
+        showToast('No se pudo descargar el Excel.');
+      });
+  });
+
+  document.getElementById('btnExportJson').addEventListener('click', function(){
+    if(!downloadsCap){ showToast('La descarga no está disponible en esta vista.'); return; }
+    var json = JSON.stringify({ series: state.series, peliculas: state.peliculas }, null, 2);
+    downloadsCap.save({ filename:'seriesLinkTv_backup.json', data: json })
+      .then(function(){ showToast('Datos exportados.'); })
+      .catch(function(err){
+        if(err && err.code === 'declined') return;
+        showToast('No se pudo exportar el archivo.');
+      });
+  });
+
+  document.getElementById('btnImportJson').addEventListener('click', function(){
+    document.getElementById('fileImportJson').click();
+  });
+  document.getElementById('fileImportJson').addEventListener('change', function(ev){
+    var file = ev.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var parsed;
+      try{ parsed = JSON.parse(reader.result); }
+      catch(e){ showToast('El archivo no es un JSON válido.'); return; }
+      if(!parsed || !Array.isArray(parsed.series) || !Array.isArray(parsed.peliculas)){
+        showToast('El archivo no tiene el formato esperado.'); return;
+      }
+      confirmAction('¿Reemplazar los datos actuales por los del archivo importado?', function(){
+        state.series = parsed.series;
+        state.peliculas = parsed.peliculas;
+        persist(); renderSeries(); renderPeliculas(); renderGrid(); refreshExcelYear();
+        showToast('Datos importados correctamente.');
+      });
+    };
+    reader.readAsText(file);
+    ev.target.value = '';
+  });
+
+  // ================= init =================
+  renderGrid();
+  renderSeries();
+  renderPeliculas();
+})();
+</script>
