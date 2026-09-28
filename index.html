@@ -934,16 +934,34 @@
   }
   refreshExcelYear();
 
-  var downloadsCap = null;
-  if(window.claude && typeof window.claude.use === 'function'){
-    window.claude.use('downloads').then(function(cap){
-      downloadsCap = cap;
-      if(!cap){
-        document.getElementById('btnExcel').hidden = true;
-        document.getElementById('btnExportJson').hidden = true;
-        showToast('La descarga de archivos no está disponible en esta vista.');
+  function getDownloadsCap(){
+    if(!window.claude || typeof window.claude.use !== 'function') return Promise.resolve(null);
+    return window.claude.use('downloads').catch(function(){ return null; });
+  }
+  function tryLocalDownload(filename, data, mime){
+    try{
+      var blob = (typeof Blob !== 'undefined' && data instanceof Blob) ? data : new Blob([data], { type: mime || 'application/octet-stream' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      return true;
+    }catch(e){ return false; }
+  }
+  function offerDownload(filename, data, mime){
+    return getDownloadsCap().then(function(cap){
+      if(cap){
+        return cap.save({ filename: filename, data: data }).then(function(){ showToast('Archivo descargado.'); })
+          .catch(function(err){
+            if(err && err.code === 'declined') return;
+            if(!tryLocalDownload(filename, data, mime)) showToast('No se pudo descargar el archivo.');
+            else showToast('Archivo descargado.');
+          });
       }
-    }).catch(function(){ downloadsCap = null; });
+      if(!tryLocalDownload(filename, data, mime)) showToast('La descarga no está disponible en esta vista.');
+      else showToast('Archivo descargado.');
+    });
   }
 
   function datesInMonth(year, monthIdx){
@@ -1003,29 +1021,17 @@
   }
 
   document.getElementById('btnExcel').addEventListener('click', function(){
-    if(!downloadsCap){ showToast('La descarga no está disponible en esta vista.'); return; }
     var monthIdx = +excelMes.value;
     var year = +excelAnio.value || new Date().getFullYear();
     var wb = buildWorkbook(monthIdx, year);
     var buf = XLSX.write(wb, { bookType:'xlsx', type:'array' });
     var blob = new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    downloadsCap.save({ filename: 'seriesLinkTv_grilla_' + MESES[monthIdx] + '_' + year + '.xlsx', data: blob })
-      .then(function(){ showToast('Excel descargado.'); })
-      .catch(function(err){
-        if(err && err.code === 'declined') return;
-        showToast('No se pudo descargar el Excel.');
-      });
+    offerDownload('seriesLinkTv_grilla_' + MESES[monthIdx] + '_' + year + '.xlsx', blob, blob.type);
   });
 
   document.getElementById('btnExportJson').addEventListener('click', function(){
-    if(!downloadsCap){ showToast('La descarga no está disponible en esta vista.'); return; }
     var json = JSON.stringify({ series: state.series, peliculas: state.peliculas }, null, 2);
-    downloadsCap.save({ filename:'seriesLinkTv_backup.json', data: json })
-      .then(function(){ showToast('Datos exportados.'); })
-      .catch(function(err){
-        if(err && err.code === 'declined') return;
-        showToast('No se pudo exportar el archivo.');
-      });
+    offerDownload('seriesLinkTv_backup.json', json, 'application/json');
   });
 
   document.getElementById('btnImportJson').addEventListener('click', function(){
